@@ -67,9 +67,9 @@ class Bms(object):
         value = matched.group("value")
         if field == "BPM":
             try:
-                instance.header["bpm"]["mainbpm"] = float(value)
+                instance.head["bpm"]["mainbpm"] = float(value)
             except ValueError:
-                instance.header["bpm"]["mainbpm"] = 120.0
+                instance.head["bpm"]["mainbpm"] = 120.0
         elif field == "PLAYLEVEL":
             try:
                 instance.playlevel = int(value)
@@ -97,33 +97,33 @@ class Bms(object):
                 instance.lntype = 0
         elif field == "TAGS":
             for tag in value.split("#"):
-                instance.header["tags"].append(tag)
+                instance.head["tags"].append(tag)
         elif field == "py":
-            instance.header["py"] = value.split(",")
+            instance.head["py"] = value.split(",")
         elif field.startswith("WAV"):
-            instance.header["wav"][field[4:]] = value
+            instance.head["wav"][field[4:]] = value
         elif field.startswith("BMP"):
-            instance.header["bmp"][field[4:]] = value
+            instance.head["bmp"][field[4:]] = value
         elif field.startswith("STOP"):
-            instance.header["stop"][field[4:]] = value
+            instance.head["stop"][field[4:]] = value
         elif field.startswith("BPM") and field != "BPM":
-            instance.header["bpm"][field[4:]] = value
+            instance.head["bpm"][field[4:]] = value
 
         else:
-            instance.header[field.lower()] = value
+            instance.head[field.lower()] = value
         sortcache = [{}, {}, {}, {}]
-        for key in sorted(instance.header["wav"][key]):
-            sortcache[0][key] = instance.header["wav"][key]
-        for key in sorted(instance.header["bmp"][key]):
-            sortcache[1][key] = instance.header["bmp"][key]
-        for key in sorted(instance.header["stop"][key]):
-            sortcache[2][key] = instance.header["stop"][key]
-        for key in sorted(instance.header["bpm"][key]):
-            sortcache[3][key] = instance.header["bpm"][key]
-        instance.header["wav"] = sortcache[0]
-        instance.header["bmp"] = sortcache[1]
-        instance.header["stop"] = sortcache[2]
-        instance.header["bpm"] = sortcache[3]
+        for key in sorted(instance.head["wav"][key]):
+            sortcache[0][key] = instance.head["wav"][key]
+        for key in sorted(instance.head["bmp"][key]):
+            sortcache[1][key] = instance.head["bmp"][key]
+        for key in sorted(instance.head["stop"][key]):
+            sortcache[2][key] = instance.head["stop"][key]
+        for key in sorted(instance.head["bpm"][key]):
+            sortcache[3][key] = instance.head["bpm"][key]
+        instance.head["wav"] = sortcache[0]
+        instance.head["bmp"] = sortcache[1]
+        instance.head["stop"] = sortcache[2]
+        instance.head["bpm"] = sortcache[3]
         return instance
 
     def parse_data(instance, matched):
