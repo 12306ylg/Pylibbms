@@ -1,0 +1,23 @@
+#TITLE Test Song
+#ARTIST Test Artist
+#SUBTITLE Test Subtitle
+#BANNER test.jpg
+#BACKGROUND test.jpg
+#TITLEPICTURE test.jpg
+#PLAYER 1
+#RANK 3
+#GENRE 1
+#DIFFICULTY 5
+#GENRE Test Genre
+#PLAYLEVEL 1
+#BPM 120.0
+#VOLWAV 100
+#LNTYPE 1
+#WAV01 test.wav
+#BMP01 test.bmp
+#STOP01 0
+#BPM01 120.0
+#WAV02 test2.wav
+#COPYRIGHT 2020
+#TAGS #test #test2
+#RUN_PYSCRIPT test.py
