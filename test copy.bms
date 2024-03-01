@@ -1,0 +1,21 @@
+#TITLE new_title
+#SUBTITLE Test Subtitle
+#ARTIST Test Artist
+#GENRE Test Genre
+#BPM {'mainbpm': 120.0, '1': 120.0}
+#PLAYLEVEL 1
+#RANK 3
+#TOTAL 0
+#VOLWAV 100
+#LNTYPE 1
+#TAGS ['', 'test ', 'test2']
+#WAV {'1': 'test.wav', '2': 'test2.wav'}
+#STOP {'01': '0'}
+#RUN_PYSCRIPT test.py
+#PY []
+#BANNER test.jpg
+#BACKGROUND test.jpg
+#TITLEPICTURE test.jpg
+#PLAYER 1
+#DIFFICULTY 5
+#COPYRIGHT 2020

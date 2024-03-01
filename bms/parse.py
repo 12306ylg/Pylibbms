@@ -19,27 +19,27 @@ class Bms(object):
             "subtitle": "",
             "artist": "None",
             "genre": "None",
-            "playlevel": "1",
             "subtitle": "",
-            "copyright": "",
             "bpm": {"mainbpm": 120.0},
+            "playlevel": 0,
+            "rank": 0,
+            "total": 0,
+            "volwav": 0,
+            "lntype": 0,
             "tags": [],
             "wav": {},
             "stop": {},
             "bpm": {},
-            "bars": {},
-            "run_pyscript": "no",
-            "py": [],
         }
         self.channel = {}
         self.info = []
 
     @classmethod
-    def parse(cls, fileparse: str):
+    def parse(cls, parse: str):
         global instance
         instance = Bms()
-        fileparse = Bms.pre(fileparse).read()
-        for line in fileparse.split("\n"):
+
+        for index, line in enumerate(parse.split("\n")):
             line = line.strip()
             header_matched = cls.pattern_header.match(line)
             data_matched = cls.pattern_data.match(line)
@@ -47,18 +47,12 @@ class Bms(object):
                 try:
                     cls.parse_data(instance, data_matched)
                 except Exception as e:
-                    instance.info.append(f"Error in data parse: {e}")
+                    instance.info.append(f"(line:{index+1})Error in data parse: {e}")
             elif header_matched:
                 try:
                     cls.parse_header(instance, header_matched)
                 except Exception as e:
-                    instance.info.append(f"Error in header parse: {e}")
-        if instance.head["run_pyscript"] == "yes":
-            try:
-                for script in instance.head["py"]:
-                    exec(script)
-            except Exception as e:
-                instance.info.append(f"Error in python script: {e}")
+                    instance.info.append(f"(line:{index+1})Error in header parse: {e}")
         return instance
 
     @staticmethod
@@ -68,37 +62,43 @@ class Bms(object):
         if field == "BPM":
             try:
                 instance.head["bpm"]["mainbpm"] = float(value)
-            except ValueError:
-                instance.head["bpm"]["mainbpm"] = 120.0
+            except (ValueError,TypeError):
+                raise ValueError("The bpm value must be a number")
         elif field == "PLAYLEVEL":
             try:
-                instance.playlevel = int(value)
-            except ValueError:
-                instance.playlevel = 0
+                instance.head["playlevel"] = int(value)
+            except (ValueError,TypeError):
+                raise ValueError("The playlevel value must be a number")
         elif field == "RANK":
             try:
-                instance.rank = int(value)
-            except ValueError:
-                instance.rank = 0
+                instance.head["rank"] = int(value)
+                if instance.head["rank"] < 0 or instance.head["rank"] > 4:
+                    raise ValueError
+            except (ValueError,TypeError):
+                raise ValueError("Rank value is out of range[0-4]")
         elif field == "TOTAL":
             try:
-                instance.total = int(value)
-            except ValueError:
-                instance.total = 0
+                instance.head["total"] = int(value)
+            except (ValueError,TypeError):
+                raise ValueError("The total value must be a number")
         elif field == "VOLWAV":
             try:
-                instance.volwav = int(value)
-            except ValueError:
-                instance.volwav = 0
+                instance.head["volwav"] = int(value)
+
+            except (ValueError,TypeError):
+                raise ValueError("The volwav value must be a number")
+            
         elif field == "LNTYPE":
             try:
-                instance.lntype = int(value)
-            except ValueError:
-                instance.lntype = 0
+                instance.head["lntype"] = int(value)
+                if instance.head["lntype"] in range(1, 3) is False:
+                    raise ValueError
+            except (ValueError,TypeError):
+                raise ValueError("The lntype value is out of range[1-2]")
         elif field == "TAGS":
             for tag in value.split("#"):
                 instance.head["tags"].append(tag)
-        elif field == "py":
+        elif field == "PY":
             instance.head["py"] = value.split(",")
         elif field.startswith("WAV"):
             instance.head["wav"][field[4:]] = value
@@ -107,23 +107,14 @@ class Bms(object):
         elif field.startswith("STOP"):
             instance.head["stop"][field[4:]] = value
         elif field.startswith("BPM") and field != "BPM":
-            instance.head["bpm"][field[4:]] = value
+            try:
+                instance.head["bpm"][field[4:]] = float(value)
+            except (ValueError,TypeError):
+                raise ValueError("The bpm value must be a number")
 
         else:
             instance.head[field.lower()] = value
-        sortcache = [{}, {}, {}, {}]
-        for key in sorted(instance.head["wav"][key]):
-            sortcache[0][key] = instance.head["wav"][key]
-        for key in sorted(instance.head["bmp"][key]):
-            sortcache[1][key] = instance.head["bmp"][key]
-        for key in sorted(instance.head["stop"][key]):
-            sortcache[2][key] = instance.head["stop"][key]
-        for key in sorted(instance.head["bpm"][key]):
-            sortcache[3][key] = instance.head["bpm"][key]
-        instance.head["wav"] = sortcache[0]
-        instance.head["bmp"] = sortcache[1]
-        instance.head["stop"] = sortcache[2]
-        instance.head["bpm"] = sortcache[3]
+        
         return instance
 
     def parse_data(instance, matched):
@@ -144,10 +135,7 @@ class Bms(object):
                 if bmscode["encoding"] == "Windows-1252":
                     bmscode["encoding"] = "Shift-jis"
                 file = open(bmspath, encoding=bmscode["encoding"])
-                print(bmscode)
-                return file
             else:
-                print("cannot autoget encoding")
-                bmscode = input("encoding:")
+                print("warn:cannot auto-get correct encoding")
                 file = open(bmspath, encoding=bmscode)
-                return file
+            return file

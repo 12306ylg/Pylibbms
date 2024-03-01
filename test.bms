@@ -2,8 +2,6 @@
 #ARTIST Test Artist
 #SUBTITLE Test Subtitle
 #BANNER test.jpg
-#BACKGROUND test.jpg
-#TITLEPICTURE test.jpg
 #PLAYER 1
 #RANK 3
 #GENRE 1
@@ -18,6 +16,4 @@
 #STOP01 0
 #BPM01 120.0
 #WAV02 test2.wav
-#COPYRIGHT 2020
 #TAGS #test #test2
-#RUN_PYSCRIPT test.py
