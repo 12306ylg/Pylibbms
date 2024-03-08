@@ -4,7 +4,7 @@ import chardet
 detector = chardet
 
 
-class Bms(object):
+class bms_parse:
     pattern_header = re.compile(
         r"#(?P<field>\S+)(?:\s(?P<value>.*))?",
     )
@@ -13,32 +13,12 @@ class Bms(object):
         r"#(?P<bar>\d{3})" "(?P<channel>[0-9a-f]{2}):" "(?P<data>.*)$", re.IGNORECASE
     )
 
-    def __init__(self):
-        self.head = {
-            "title": "New song",
-            "subtitle": "",
-            "artist": "None",
-            "genre": "None",
-            "subtitle": "",
-            "bpm": {"mainbpm": 120.0},
-            "playlevel": 0,
-            "rank": 0,
-            "total": 0,
-            "volwav": 0,
-            "lntype": 0,
-            "tags": [],
-            "wav": {},
-            "stop": {},
-            "bpm": {},
-        }
-        self.channel = {}
-        self.info = []
+    
 
     @classmethod
     def parse(cls, parse: str):
         global instance
-        instance = Bms()
-
+        instance = cls
         for index, line in enumerate(parse.split("\n")):
             line = line.strip()
             header_matched = cls.pattern_header.match(line)
@@ -139,3 +119,26 @@ class Bms(object):
                 print("warn:cannot auto-get correct encoding")
                 file = open(bmspath, encoding=bmscode)
             return file
+
+   
+    def __new__(cls, *args):
+        cls.head = {
+            "title": "New song",
+            "subtitle": "",
+            "artist": "None",
+            "genre": "None",
+            "subtitle": "",
+            "bpm": {"mainbpm": 120.0},
+            "playlevel": 0,
+            "rank": 0,
+            "total": 0,
+            "volwav": 0,
+            "lntype": 0,
+            "tags": [],
+            "wav": {},
+            "stop": {},
+            "bpm": {},
+        }
+        cls.channel = {}
+        cls.info = []
+        return cls.parse(args[0])

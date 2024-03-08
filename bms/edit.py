@@ -6,7 +6,7 @@ class bms_edit:
     def __init__(self, file_path: str, encoding: str = "utf-8"):
         import parse
         # 初始化bms_edit类，传入文件路径和编码格式
-        self.bms = parse.Bms.parse(open(file_path, "r", encoding=encoding).read())
+        self.bms = parse.bms_parse(open(file_path, "r", encoding=encoding).read())
         self.file_path = file_path
         self.encoding = encoding
     def update_header(self,key: str, value: str):
@@ -30,7 +30,4 @@ class bms_edit:
         for channel in self.bms.channel.items():
             bms+=f"#{channel[0]}:{channel[1]}\n"
         file.write(bms)
-if __name__ == "__main__":
-    bb=bms_edit("test.bms")
-    bb.update_header("title", "new_title")
-    bb.write()
+
