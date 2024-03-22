@@ -142,3 +142,76 @@ class bms_parse:
         cls.channel = {}
         cls.info = []
         return cls.parse(args[0])
+import re
+import chardet
+
+detector = chardet
+
+
+class bms_parse_low_level:
+    pattern_header = re.compile(
+        r"#(?P<field>\S+)(?:\s(?P<value>.*))?",
+    )
+
+    pattern_data = re.compile(
+        r"#(?P<bar>\d{3})" "(?P<channel>[0-9a-f]{2}):" "(?P<data>.*)$", re.IGNORECASE
+    )
+
+    
+
+    @classmethod
+    def parse(cls, parse: str):
+        global instance
+        instance = cls
+        for index, line in enumerate(parse.split("\n")):
+            line = line.strip()
+            header_matched = cls.pattern_header.match(line)
+            data_matched = cls.pattern_data.match(line)
+            if data_matched:
+                try:
+                    cls.parse_data(instance, data_matched)
+                except Exception as e:
+                    instance.info.append(f"(line:{index+1})Error in data parse: {e}")
+            elif header_matched:
+                try:
+                    cls.parse_header(instance, header_matched)
+                except Exception as e:
+                    instance.info.append(f"(line:{index+1})Error in header parse: {e}")
+        return instance
+
+    @staticmethod
+    def parse_header(instance, matched: re.Match[str]):
+        field = matched.group("field")
+        value = matched.group("value")
+        instance.head[field.lower()] = value
+        return instance
+
+    def parse_data(instance, matched: re.Match[str]):
+        channel = matched.group("channel")
+        bar = matched.group("bar")
+        data = matched.group("data")
+        try:
+            instance.channel[channel]
+        except KeyError:
+            instance.channel[channel] = []
+        instance.channel[channel].append([bar, data])
+        return instance
+
+    def pre(bmspath):
+        with open(bmspath, "rb") as parsefilepre:
+            bmscode = detector.detect(parsefilepre.read())
+            if bmscode["confidence"] >= 0.50:
+                if bmscode["encoding"] == "Windows-1252":
+                    bmscode["encoding"] = "Shift-jis"
+                file = open(bmspath, encoding=bmscode["encoding"])
+            else:
+                print("warn:cannot auto-get correct encoding")
+                file = open(bmspath, encoding=bmscode)
+            return file
+
+   
+    def __new__(cls, *args):
+        cls.head = {}
+        cls.channel = {}
+        cls.info = []
+        return cls.parse(args[0])
